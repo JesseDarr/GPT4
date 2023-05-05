@@ -1,7 +1,7 @@
 import openai
 
 # Add your GPT-4 API key here
-API_KEY = "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"
+API_KEY = ""
 
 def send_to_gpt4(text):
     openai.api_key = API_KEY
