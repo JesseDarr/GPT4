@@ -5,6 +5,8 @@ import sys
 import time
 import logging
 from datetime import datetime
+from rich import print as rprint
+from rich.console import Console
 from colorama import Fore, Style
 
 class ExitException(Exception):
@@ -23,15 +25,16 @@ def setup_logger():
         datefmt='%Y-%m-%d | %H:%M:%S'
     )
 
-def log_and_print(message, log_type="info", color=Fore.WHITE):
+def log_and_print(message, log_type="info", style="white"):
     if log_type == "error":
         logging.error(message)
+        console.print(message, style="bold red")
     elif log_type == "exception":
         logging.exception(message)
+        console.print(message, style="bold red")
     else:
         logging.info(message)
-
-    print(color + message + Style.RESET_ALL)
+        console.print(message, style=style)
 
 def send_to_gpt4(text):
     openai.api_key = API_KEY
@@ -72,20 +75,26 @@ def read_input():
 
 def display_instructions():
     log_entry = "Enter your prompt (type 'xxx' to submit or 'exit' to quit): "
-    log_and_print(log_entry, color=Fore.GREEN)
+    log_and_print(log_entry, style="bold green")
 
 def display_spinner(stop_event):
+    # Uses sys.stdout.write() and .flush() instead of Rich
+    # This allows it to be animated instead of written to the screen repeatedly
+    # Also uses colorama for colors here
+
     spinner = ['-', '\\', '|', '/']
     start_time = time.time()
     while not stop_event.is_set():
         for s in spinner:
             elapsed_time = time.time() - start_time
-            sys.stdout.write(Fore.BLUE + '\rWaiting for response... {} (Time elapsed: {:.2f} seconds)'.format(s, elapsed_time) + Style.RESET_ALL)
+            sys.stdout.write(Fore.BLUE + f'\rWaiting for response... {s} (Time elapsed: {elapsed_time:.2f} seconds)' + Style.RESET_ALL)
             sys.stdout.flush()
             time.sleep(0.2)
 
     log_entry = f"Waiting for response completed (Total time elapsed: {elapsed_time:.2f} seconds)"
     logging.info(log_entry)
+    
+    console.print("") # Add a newline character after the spinner stops
 
 def clear_screen():
     if os.name == 'nt':  # for Windows
@@ -105,7 +114,7 @@ def get_gpt4_response(prompt):
     spinner_thread = threading.Thread(target=display_spinner, args=(stop_event,))
     spinner_thread.daemon = True
 
-    print("")  # Add a newline character before starting the spinner thread
+    console.print("")  # Add a newline character before starting the spinner thread
     spinner_thread.start()
 
     try:
@@ -113,24 +122,25 @@ def get_gpt4_response(prompt):
     except Exception as e:
         error_message = f"Error: {e}"
         logging.error(error_message)
-        print(Fore.RED + f"\n{error_message}" + Style.RESET_ALL)
+        console.print(f"\n{error_message}", style='red')
         response = None
     finally:
         stop_event.set()
         spinner_thread.join()
-        sys.stdout.write('\r')
+        console.print("\r", end="")
         sys.stdout.flush()
 
-    print("")  # Add a newline character after the spinner thread has finished
+    console.print("")  # Add a newline character after the spinner thread has finished
     return response
 
 def display_response(response):
     if response:
         log_entry = f"GPT-4 Response:"
-        log_and_print(log_entry, color=Fore.CYAN)
+        log_and_print(log_entry, style="bold cyan")
 
         log_entry = f"{response}"
-        log_and_print(log_entry, color=Fore.WHITE)
+        logging.info(log_entry)  # Log without printing
+        rprint(response)         # Print with rprint so we can have syntax highligting in the shell
 
 def start_input_loop():
     while True:
@@ -140,24 +150,25 @@ def start_input_loop():
             display_response(response)
         except ExitException:
             log_message = "Exiting the program."
-            log_and_print(log_message, color=Fore.YELLOW)
+            log_and_print(log_message, style="bold yellow")
             break
         except KeyboardInterrupt:
             log_message = "Detected keyboard interrupt. Exiting the program."
-            log_and_print(log_message, color=Fore.YELLOW)
+            log_and_print(log_message, style="bold yellow")
             break
         except Exception as e:
             log_message = f"An unexpected error occurred: {e}"
-            log_and_print(log_message, log_type="exception", color=Fore.RED)
+            log_and_print(log_message, log_type="exception", style="bold red")
 
 if __name__ == '__main__':
+    console = Console() # Init Rich Console - used for colors and syntax highlighting
     setup_logger()
     clear_screen()
     
     API_KEY = os.environ.get('GPT4_API_KEY')
     if not API_KEY:
         log_entry = f"Error: API key not found in environment variables"
-        log_and_print(log_entry, log_type="error", color=Fore.RED)
+        log_and_print(log_entry, log_type="error", style="bold red")
         sys.exit()    
 
     start_input_loop()
