@@ -1,16 +1,42 @@
 import openai
 import threading
 import os
+import re
 import sys
 import time
 import logging
 from datetime import datetime
 from rich import print as rprint
 from rich.console import Console
+from rich.syntax import Syntax
+from rich.text import Text
 from colorama import Fore, Style
 
 class ExitException(Exception):
     pass
+
+def print_highlighted_response(response):
+    code_block_pattern = re.compile(r'```(\w+)\n(.*?)```', re.DOTALL)
+
+    def repl(match):
+        language = match.group(1).lower()
+        code = match.group(2)
+        syntax = Syntax(code, language, line_numbers=True)
+        return syntax
+
+    pos = 0
+    for match in code_block_pattern.finditer(response):
+        text_before = response[pos:match.start()]
+        console.print(text_before)
+        log_and_print(text_before, style="white", skip_print=True)
+        code_block = repl(match)
+        console.print(code_block)
+        log_and_print(match.group(0), style="white", skip_print=True)
+        pos = match.end()
+
+    text_after = response[pos:]
+    console.print(text_after)
+    log_and_print(text_after, style="white", skip_print=True)
 
 def setup_logger():
     log_directory = "logs"
@@ -25,22 +51,27 @@ def setup_logger():
         datefmt='%Y-%m-%d | %H:%M:%S'
     )
 
-def log_and_print(message, log_type="info", style="white"):
+def log_and_print(message, log_type="info", style="white", skip_print=False):
     if log_type == "error":
         logging.error(message)
-        console.print(message, style="bold red")
+        if not skip_print:
+            console.print(message, style="bold red")
     elif log_type == "exception":
         logging.exception(message)
-        console.print(message, style="bold red")
+        if not skip_print:
+            console.print(message, style="bold red")
     else:
         logging.info(message)
-        console.print(message, style=style)
+        if not skip_print:
+            console.print(message, style=style)
+
 
 def send_to_gpt4(text):
     openai.api_key = API_KEY
 
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "system", "content": "When providing code, please enclose it in triple backticks with the appropriate language specified."},
         {"role": "user", "content": text}
     ]
 
@@ -74,7 +105,7 @@ def read_input():
     return "\n".join(lines)
 
 def display_instructions():
-    log_entry = "Enter your prompt (type 'xxx' to submit or 'exit' to quit): "
+    log_entry = "Enter your prompt (type '///' to submit or 'exit' to quit): "
     log_and_print(log_entry, style="bold green")
 
 def display_spinner(stop_event):
@@ -137,10 +168,7 @@ def display_response(response):
     if response:
         log_entry = f"GPT-4 Response:"
         log_and_print(log_entry, style="bold cyan")
-
-        log_entry = f"{response}"
-        logging.info(log_entry)  # Log without printing
-        rprint(response)         # Print with rprint so we can have syntax highligting in the shell
+        print_highlighted_response(response)
 
 def start_input_loop():
     while True:
