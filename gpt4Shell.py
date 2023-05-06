@@ -7,13 +7,6 @@ import logging
 from datetime import datetime
 from colorama import Fore, Style
 
-API_KEY = os.environ.get('GPT4_API_KEY')
-if not API_KEY:
-    log_entry = f"Error: API key not found in environment variables"
-    logging.error(log_entry)
-    print(Fore.RED + f"\n{log_entry}" + Style.RESET_ALL)
-    sys.exit()
-
 class ExitException(Exception):
     pass
 
@@ -30,6 +23,15 @@ def setup_logger():
         datefmt='%Y-%m-%d | %H:%M:%S'
     )
 
+def log_and_print(message, log_type="info", color=Fore.WHITE):
+    if log_type == "error":
+        logging.error(message)
+    elif log_type == "exception":
+        logging.exception(message)
+    else:
+        logging.info(message)
+
+    print(color + message + Style.RESET_ALL)
 
 def send_to_gpt4(text):
     openai.api_key = API_KEY
@@ -42,7 +44,7 @@ def send_to_gpt4(text):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=messages,
-        max_tokens=7000,    # 8k max
+        max_tokens=6500,    # 8k max
         n=1,                # number of responses
         stop=None,
         temperature=0.7,    # 0-1, creativeness/randomness value, 1 = more creative
@@ -69,9 +71,8 @@ def read_input():
     return "\n".join(lines)
 
 def display_instructions():
-    log_entry = "Enter your prompt (type '///' to submit or 'exit' to quit): "
-    logging.info(log_entry)
-    print(Fore.GREEN + f"\n{log_entry}" + Style.RESET_ALL)
+    log_entry = "Enter your prompt (type 'xxx' to submit or 'exit' to quit): "
+    log_and_print(log_entry, color=Fore.GREEN)
 
 def display_spinner(stop_event):
     spinner = ['-', '\\', '|', '/']
@@ -125,16 +126,13 @@ def get_gpt4_response(prompt):
 
 def display_response(response):
     if response:
-        log_entry = f"GPT-4 Response: {response}"
-        logging.info(log_entry)
+        log_entry = f"GPT-4 Response:"
+        log_and_print(log_entry, color=Fore.CYAN)
 
-        print(Fore.CYAN + "\nGPT-4 Response:" + Style.RESET_ALL)
-        print(Fore.WHITE + "{}".format(response) + Style.RESET_ALL)
+        log_entry = f"{response}"
+        log_and_print(log_entry, color=Fore.WHITE)
 
 def start_input_loop():
-    setup_logger()
-    clear_screen()
-    
     while True:
         try:
             prompt = get_user_input()
@@ -142,18 +140,24 @@ def start_input_loop():
             display_response(response)
         except ExitException:
             log_message = "Exiting the program."
-            logging.info(log_message)  # Log the message
-            print(Fore.YELLOW + "\n" + log_message + Style.RESET_ALL)
+            log_and_print(log_message, color=Fore.YELLOW)
             break
         except KeyboardInterrupt:
             log_message = "Detected keyboard interrupt. Exiting the program."
-            logging.info(log_message)  # Log the message
-            print(Fore.YELLOW + "\n" + log_message + Style.RESET_ALL)
+            log_and_print(log_message, color=Fore.YELLOW)
             break
         except Exception as e:
             log_message = f"An unexpected error occurred: {e}"
-            logging.exception(log_message)  # Log the exception and traceback
-            print(Fore.RED + "\n" + log_message + Style.RESET_ALL)
+            log_and_print(log_message, log_type="exception", color=Fore.RED)
 
 if __name__ == '__main__':
+    setup_logger()
+    clear_screen()
+    
+    API_KEY = os.environ.get('GPT4_API_KEY')
+    if not API_KEY:
+        log_entry = f"Error: API key not found in environment variables"
+        log_and_print(log_entry, log_type="error", color=Fore.RED)
+        sys.exit()    
+
     start_input_loop()
