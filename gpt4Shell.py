@@ -3,15 +3,33 @@ import threading
 import os
 import sys
 import time
+import logging
+from datetime import datetime
 from colorama import Fore, Style
 
 API_KEY = os.environ.get('GPT4_API_KEY')
 if not API_KEY:
-    print(Fore.RED + f"\nError: API key not found in environment variables" + Style.RESET_ALL)
+    log_entry = f"Error: API key not found in environment variables"
+    logging.error(log_entry)
+    print(Fore.RED + f"\n{log_entry}" + Style.RESET_ALL)
     sys.exit()
 
 class ExitException(Exception):
     pass
+
+def setup_logger():
+    log_directory = "logs"
+    os.makedirs(log_directory, exist_ok=True)
+    log_filename = datetime.now().strftime("%m-%d-%Y_%H-%M-%S.log")
+    log_filepath = os.path.join(log_directory, log_filename)
+
+    logging.basicConfig(
+        filename=log_filepath,
+        level=logging.INFO,
+        format='%(asctime)s.%(msecs)03d | %(message)s',
+        datefmt='%Y-%m-%d | %H:%M:%S'
+    )
+
 
 def send_to_gpt4(text):
     openai.api_key = API_KEY
@@ -51,7 +69,9 @@ def read_input():
     return "\n".join(lines)
 
 def display_instructions():
-    print(Fore.GREEN + "\nEnter your prompt (type '///' to submit or 'exit' to quit): " + Style.RESET_ALL)
+    log_entry = "Enter your prompt (type '///' to submit or 'exit' to quit): "
+    logging.info(log_entry)
+    print(Fore.GREEN + f"\n{log_entry}" + Style.RESET_ALL)
 
 def display_spinner(stop_event):
     spinner = ['-', '\\', '|', '/']
@@ -63,6 +83,9 @@ def display_spinner(stop_event):
             sys.stdout.flush()
             time.sleep(0.2)
 
+    log_entry = f"Waiting for response completed (Total time elapsed: {elapsed_time:.2f} seconds)"
+    logging.info(log_entry)
+
 def clear_screen():
     if os.name == 'nt':  # for Windows
         os.system('cls')
@@ -71,7 +94,10 @@ def clear_screen():
 
 def get_user_input():
     display_instructions()
-    return read_input()
+    user_input = read_input()
+    log_entry = f"User Input: {user_input}"
+    logging.info(log_entry)
+    return user_input
 
 def get_gpt4_response(prompt):
     stop_event = threading.Event()
@@ -84,7 +110,9 @@ def get_gpt4_response(prompt):
     try:
         response = send_to_gpt4(prompt)
     except Exception as e:
-        print(Fore.RED + f"\nError: {e}" + Style.RESET_ALL)
+        error_message = f"Error: {e}"
+        logging.error(error_message)
+        print(Fore.RED + f"\n{error_message}" + Style.RESET_ALL)
         response = None
     finally:
         stop_event.set()
@@ -97,25 +125,35 @@ def get_gpt4_response(prompt):
 
 def display_response(response):
     if response:
+        log_entry = f"GPT-4 Response: {response}"
+        logging.info(log_entry)
+
         print(Fore.CYAN + "\nGPT-4 Response:" + Style.RESET_ALL)
         print(Fore.WHITE + "{}".format(response) + Style.RESET_ALL)
 
 def start_input_loop():
+    setup_logger()
     clear_screen()
     
     while True:
         try:
             prompt = get_user_input()
-
             response = get_gpt4_response(prompt)
-
             display_response(response)
         except ExitException:
-            print(Fore.YELLOW + "\nExiting the program." + Style.RESET_ALL)
+            log_message = "Exiting the program."
+            logging.info(log_message)  # Log the message
+            print(Fore.YELLOW + "\n" + log_message + Style.RESET_ALL)
             break
         except KeyboardInterrupt:
-            print(Fore.YELLOW + "\nDetected keyboard interrupt. Exiting the program." + Style.RESET_ALL)
+            log_message = "Detected keyboard interrupt. Exiting the program."
+            logging.info(log_message)  # Log the message
+            print(Fore.YELLOW + "\n" + log_message + Style.RESET_ALL)
             break
+        except Exception as e:
+            log_message = f"An unexpected error occurred: {e}"
+            logging.exception(log_message)  # Log the exception and traceback
+            print(Fore.RED + "\n" + log_message + Style.RESET_ALL)
 
 if __name__ == '__main__':
     start_input_loop()
