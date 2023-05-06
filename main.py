@@ -5,12 +5,9 @@ from modules.utils import setup_logger, ExitException, clear_screen
 
 import os
 import sys
-import logging
-from rich import print as rprint
 from rich.console import Console
 from rich.syntax import Syntax
 from rich.text import Text
-from colorama import Fore, Style
 
 def start_input_loop():
     while True:

@@ -1,4 +1,7 @@
+import re
 import time
+import logging
+from colorama import Fore, Style
 
 def log_and_print(message, log_type="info", style="white", skip_print=False):
     if log_type == "error":

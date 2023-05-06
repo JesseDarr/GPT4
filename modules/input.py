@@ -1,4 +1,4 @@
-import re
+import logging
 
 def get_user_input():
     display_instructions()
