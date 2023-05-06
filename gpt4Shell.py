@@ -5,6 +5,7 @@ import sys
 import time
 from colorama import Fore, Style
 
+<<<<<<< HEAD
 API_KEY = os.environ.get('GPT4_API_KEY')
 if not API_KEY:
     print(Fore.RED + f"\nError: API key not found in environment variables" + Style.RESET_ALL)
@@ -12,6 +13,10 @@ if not API_KEY:
 
 class ExitException(Exception):
     pass
+=======
+# Add your GPT-4 API key here
+API_KEY = ""
+>>>>>>> b795d90acfe6fe953ff4d7c321a5be69b8d367b1
 
 def send_to_gpt4(text):
     openai.api_key = API_KEY
@@ -118,4 +123,8 @@ def start_input_loop():
             break
 
 if __name__ == '__main__':
+<<<<<<< HEAD
     start_input_loop()
+=======
+    startInputLoop()
+>>>>>>> b795d90acfe6fe953ff4d7c321a5be69b8d367b1
