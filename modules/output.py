@@ -1,25 +1,14 @@
 import re
 import sys
 import time
-import logging
 from rich.syntax import Syntax
-from colorama import Fore, Style    
+from colorama import Fore, Style
+from modules.custom_logger import CustomLogger
 
-def log_and_print(message, log_type="info", style="white", skip_print=False, console=None):
-    if log_type == "error":
-        logging.error(message)
-        if not skip_print:
-            console.print(message, style="bold red")
-    elif log_type == "exception":
-        logging.exception(message)
-        if not skip_print:
-            console.print(message, style="bold red")
-    else:
-        logging.info(message)
-        if not skip_print:
-            console.print(message, style=style)
+logger = CustomLogger("output")
 
-def print_highlighted_response(response, console):
+def print_highlighted_response(response):
+    console = logger.console
     code_block_pattern = re.compile(r'```(\w+)\n(.*?)```', re.DOTALL)
 
     def repl(match):
@@ -32,23 +21,24 @@ def print_highlighted_response(response, console):
     for match in code_block_pattern.finditer(response):
         text_before = response[pos:match.start()]
         console.print(text_before)
-        log_and_print(text_before, style="white", skip_print=True, console=console)
+        logger.log_and_print(text_before, style="white", skip_print=True)
         code_block = repl(match)
         console.print(code_block)
-        log_and_print(match.group(0), style="white", skip_print=True, console=console)
+        logger.log_and_print(match.group(0), style="white", skip_print=True)
         pos = match.end()
 
     text_after = response[pos:]
     console.print(text_after)
-    log_and_print(text_after, style="white", skip_print=True, console=console)            
+    logger.log_and_print(text_after, style="white", skip_print=True)
 
-def display_response(response, console):
+def display_response(response):
     if response:
         log_entry = f"GPT-4 Response:"
-        log_and_print(log_entry, style="bold cyan", console=console)
-        print_highlighted_response(response, console)
+        logger.log_and_print(log_entry, style="bold cyan")
+        print_highlighted_response(response)
 
-def display_spinner(stop_event, console):
+def display_spinner(stop_event):
+    console = logger.console
     # Uses sys.stdout.write() and .flush() instead of Rich
     # This allows it to be animated instead of written to the screen repeatedly
     # Also uses colorama for colors here
@@ -63,6 +53,6 @@ def display_spinner(stop_event, console):
             time.sleep(0.2)
 
     log_entry = f"Waiting for response completed (Total time elapsed: {elapsed_time:.2f} seconds)"
-    logging.info(log_entry)
-    
-    console.print("") # Add a newline character after the spinner stops        
+    logger.log_and_print(log_entry, log_type="info", style="white", skip_print=True)
+
+    console.print("") # Add a newline character after the spinner stops

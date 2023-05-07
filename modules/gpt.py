@@ -1,12 +1,15 @@
+import sys
 import openai
 import threading
-import logging
-import sys
 from modules.output import display_spinner
+from modules.custom_logger import CustomLogger
 
-def get_gpt4_response(prompt, console, api_key):
+logger = CustomLogger("gpt4_response")
+
+def get_gpt4_response(prompt, api_key):
+    console = logger.console  # Access the console object from the logger
     stop_event = threading.Event()
-    spinner_thread = threading.Thread(target=display_spinner, args=(stop_event, console))  # Pass the console variable
+    spinner_thread = threading.Thread(target=display_spinner, args=(stop_event,))
     spinner_thread.daemon = True
 
     console.print("")  # Add a newline character before starting the spinner thread
@@ -16,8 +19,7 @@ def get_gpt4_response(prompt, console, api_key):
         response = send_to_gpt4(prompt, api_key)
     except Exception as e:
         error_message = f"Error: {e}"
-        logging.error(error_message)
-        console.print(f"\n{error_message}", style='red')
+        logger.log_and_print(error_message, log_type="error")
         response = None
     finally:
         stop_event.set()
