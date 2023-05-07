@@ -1,9 +1,11 @@
 import re
+import sys
 import time
 import logging
-from colorama import Fore, Style
+from rich.syntax import Syntax
+from colorama import Fore, Style    
 
-def log_and_print(message, log_type="info", style="white", skip_print=False):
+def log_and_print(message, log_type="info", style="white", skip_print=False, console=None):
     if log_type == "error":
         logging.error(message)
         if not skip_print:
@@ -17,7 +19,7 @@ def log_and_print(message, log_type="info", style="white", skip_print=False):
         if not skip_print:
             console.print(message, style=style)
 
-def print_highlighted_response(response):
+def print_highlighted_response(response, console):
     code_block_pattern = re.compile(r'```(\w+)\n(.*?)```', re.DOTALL)
 
     def repl(match):
@@ -30,23 +32,23 @@ def print_highlighted_response(response):
     for match in code_block_pattern.finditer(response):
         text_before = response[pos:match.start()]
         console.print(text_before)
-        log_and_print(text_before, style="white", skip_print=True)
+        log_and_print(text_before, style="white", skip_print=True, console=console)
         code_block = repl(match)
         console.print(code_block)
-        log_and_print(match.group(0), style="white", skip_print=True)
+        log_and_print(match.group(0), style="white", skip_print=True, console=console)
         pos = match.end()
 
     text_after = response[pos:]
     console.print(text_after)
-    log_and_print(text_after, style="white", skip_print=True)            
+    log_and_print(text_after, style="white", skip_print=True, console=console)            
 
-def display_response(response):
+def display_response(response, console):
     if response:
         log_entry = f"GPT-4 Response:"
-        log_and_print(log_entry, style="bold cyan")
-        print_highlighted_response(response)
+        log_and_print(log_entry, style="bold cyan", console=console)
+        print_highlighted_response(response, console)
 
-def display_spinner(stop_event):
+def display_spinner(stop_event, console):
     # Uses sys.stdout.write() and .flush() instead of Rich
     # This allows it to be animated instead of written to the screen repeatedly
     # Also uses colorama for colors here

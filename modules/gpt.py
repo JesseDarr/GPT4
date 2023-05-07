@@ -1,16 +1,19 @@
 import openai
 import threading
+import logging
+import sys
+from modules.output import display_spinner
 
-def get_gpt4_response(prompt):
+def get_gpt4_response(prompt, console, api_key):
     stop_event = threading.Event()
-    spinner_thread = threading.Thread(target=display_spinner, args=(stop_event,))
+    spinner_thread = threading.Thread(target=display_spinner, args=(stop_event, console))  # Pass the console variable
     spinner_thread.daemon = True
 
     console.print("")  # Add a newline character before starting the spinner thread
     spinner_thread.start()
 
     try:
-        response = send_to_gpt4(prompt)
+        response = send_to_gpt4(prompt, api_key)
     except Exception as e:
         error_message = f"Error: {e}"
         logging.error(error_message)
@@ -25,8 +28,8 @@ def get_gpt4_response(prompt):
     console.print("")  # Add a newline character after the spinner thread has finished
     return response
 
-def send_to_gpt4(text):
-    openai.api_key = API_KEY
+def send_to_gpt4(text, api_key):
+    openai.api_key = api_key
 
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
