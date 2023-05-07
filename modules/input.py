@@ -7,7 +7,7 @@ def get_user_input():
     display_instructions()
     user_input = read_input()
     log_entry = f"User Input: {user_input}"
-    CustomLogger().log_and_print(log_entry)
+    logger.log_and_print(log_entry, skip_print=True)
     return user_input
 
 def read_input():
