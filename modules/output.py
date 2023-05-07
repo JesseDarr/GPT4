@@ -5,7 +5,7 @@ from rich.syntax import Syntax
 from colorama import Fore, Style
 from modules.custom_logger import CustomLogger
 
-logger = CustomLogger("output")
+logger = CustomLogger("gpt4_shell") # get ref to singleton logger
 
 def print_highlighted_response(response):
     console = logger.console

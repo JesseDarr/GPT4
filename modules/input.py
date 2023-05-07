@@ -1,7 +1,7 @@
 from modules.utils import ExitException
 from modules.custom_logger import CustomLogger
 
-logger = CustomLogger("gpt4_response")
+logger = CustomLogger("gpt4_shell") # get ref to singleton logger
 
 def get_user_input():
     display_instructions()

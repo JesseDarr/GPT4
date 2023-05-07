@@ -4,7 +4,7 @@ import threading
 from modules.output import display_spinner
 from modules.custom_logger import CustomLogger
 
-logger = CustomLogger("gpt4_response")
+logger = CustomLogger("gpt4_shell") # get ref to singleton logger
 
 def get_gpt4_response(prompt, api_key):
     console = logger.console  # Access the console object from the logger
