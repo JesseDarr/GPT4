@@ -19,4 +19,4 @@ def run_main_loop(api_key):
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            raise UnexpectedErrorException from e
+            raise UnexpectedErrorException(f"An unexpected error occurred: {e}") from e

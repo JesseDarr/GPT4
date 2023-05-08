@@ -21,7 +21,7 @@ def wait_for_query_show_spinner(prompt, api_key):
     try:
         response = query_gpt(prompt, api_key)
     except Exception as e:
-        raise UnexpectedErrorException from e
+        raise UnexpectedErrorException(f"GPT API error: {e}")
     finally:
         stop_event.set()
         spinner_thread.join()
@@ -44,7 +44,7 @@ def query_gpt(text, api_key):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=messages,
-        max_tokens=6000,
+        max_tokens=6500,
         n=1,
         stop=None,
         temperature=0.7,
