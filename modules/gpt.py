@@ -2,6 +2,7 @@ import sys
 import openai
 import threading
 from modules.output import display_spinner
+from modules.utils import UnexpectedErrorException
 from modules.custom_logger import CustomLogger
 
 logger = CustomLogger("gpt4_shell") # get ref to singleton logger
@@ -18,9 +19,7 @@ def get_gpt4_response(prompt, api_key):
     try:
         response = send_to_gpt4(prompt, api_key)
     except Exception as e:
-        error_message = f"Error: {e}"
-        logger.log_and_print(error_message, log_type="error")
-        response = None
+        raise UnexpectedErrorException from e
     finally:
         stop_event.set()
         spinner_thread.join()
