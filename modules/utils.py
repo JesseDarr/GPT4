@@ -4,15 +4,6 @@ class ExitException(Exception):
     # Raised when the user types 'exit' to exit the application
     pass
 
-class UnexpectedErrorException(Exception):
-    # Raised when an unexpected error occurs during the execution of the application
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
-
-    def __str__(self):
-        return self.message
-
 def clear_screen():
     # Clear the terminal screen.# 
     if is_windows():

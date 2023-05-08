@@ -1,7 +1,7 @@
 from modules.gpt import wait_for_query_show_spinner
 from modules.input import get_user_input
 from modules.output import display_response
-from modules.utils import ExitException, UnexpectedErrorException
+from modules.utils import ExitException
 from modules.custom_logger import CustomLogger
 
 logger = CustomLogger("gpt4_shell") # get ref to singleton logger
@@ -19,4 +19,4 @@ def run_main_loop(api_key):
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            raise UnexpectedErrorException(f"An unexpected error occurred: {e}") from e
+            raise e from e

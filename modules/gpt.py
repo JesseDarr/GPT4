@@ -2,7 +2,6 @@ import sys
 import openai
 import threading
 from modules.output import display_spinner
-from modules.utils import UnexpectedErrorException
 from modules.custom_logger import CustomLogger
 
 logger = CustomLogger("gpt4_shell") # get ref to singleton logger
@@ -20,8 +19,6 @@ def wait_for_query_show_spinner(prompt, api_key):
 
     try:
         response = query_gpt(prompt, api_key)
-    except Exception as e:
-        raise UnexpectedErrorException(f"GPT API error: {e}")
     finally:
         stop_event.set()
         spinner_thread.join()

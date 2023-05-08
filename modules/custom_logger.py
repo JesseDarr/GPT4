@@ -2,7 +2,6 @@ import os
 import logging
 from datetime import datetime
 from rich.console import Console
-from modules.utils import UnexpectedErrorException
 
 class Singleton(type):
     _instances = {}

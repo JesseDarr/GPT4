@@ -2,7 +2,7 @@ import os
 import sys
 from modules.app import run_main_loop
 from modules.utils import clear_screen
-from modules.utils import ExitException, UnexpectedErrorException
+from modules.utils import ExitException
 from modules.custom_logger import CustomLogger
 
 if __name__ == '__main__':
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         log_message = "Detected keyboard interrupt. Exiting the program."
         logger.log_and_print(log_message, style="bold yellow")
         sys.exit(0)
-    except UnexpectedErrorException as e:
+    except Exception as e:
         log_message = f"An unexpected error occurred: {e}"
         logger.log_and_print(log_message, log_type="exception", style="bold red")
         sys.exit(1)
