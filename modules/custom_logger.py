@@ -41,11 +41,8 @@ class CustomLogger(logging.Logger, metaclass=Singleton):
         }
         log_func = log_func_map.get(log_type)
 
-        if log_func:
-            log_func(message)
-            if not skip_print:
-                self.console.print(message, style=style)
-        else:
-            raise UnexpectedErrorException(f"Invalid log_type '{log_type}'")
+        log_func(message)
+        if not skip_print:
+            self.console.print(message, style=style)
 
 logging.setLoggerClass(CustomLogger)

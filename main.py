@@ -30,6 +30,6 @@ if __name__ == '__main__':
         logger.log_and_print(log_message, style="bold yellow")
         sys.exit(0)
     except UnexpectedErrorException as e:
-        log_message = f"An unexpected error occurred: {e}"
+        log_message = f"An unexpected error occurred: {e.__cause__}"
         logger.log_and_print(log_message, log_type="exception", style="bold red")
         sys.exit(1)

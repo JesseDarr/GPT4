@@ -44,7 +44,7 @@ def query_gpt(text, api_key):
     response = openai.ChatCompletion.create(
         model="gpt-4",
         messages=messages,
-        max_tokens=6500,
+        max_tokens=6000,
         n=1,
         stop=None,
         temperature=0.7,
