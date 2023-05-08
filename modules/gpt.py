@@ -7,17 +7,19 @@ from modules.custom_logger import CustomLogger
 
 logger = CustomLogger("gpt4_shell") # get ref to singleton logger
 
-def get_gpt4_response(prompt, api_key):
-    console = logger.console  # Access the console object from the logger
+def wait_for_query_show_spinner(prompt, api_key):
+    # Query GPT-4 and show a spinner while waiting for the response
+    console = logger.console
+
     stop_event = threading.Event()
     spinner_thread = threading.Thread(target=display_spinner, args=(stop_event,))
     spinner_thread.daemon = True
 
-    console.print("")  # Add a newline character before starting the spinner thread
+    console.print("")  # blank line after spinner stops
     spinner_thread.start()
 
     try:
-        response = send_to_gpt4(prompt, api_key)
+        response = query_gpt(prompt, api_key)
     except Exception as e:
         raise UnexpectedErrorException from e
     finally:
@@ -26,10 +28,11 @@ def get_gpt4_response(prompt, api_key):
         console.print("\r", end="")
         sys.stdout.flush()
 
-    console.print("")  # Add a newline character after the spinner thread has finished
+    console.print("")  # blank line after spinner stops
     return response
 
-def send_to_gpt4(text, api_key):
+def query_gpt(text, api_key):
+    # Query GPT-4 with the given text and api_key
     openai.api_key = api_key
 
     messages = [
