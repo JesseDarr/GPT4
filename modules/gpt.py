@@ -2,6 +2,7 @@ import sys
 import openai
 import threading
 from modules.output import display_spinner
+from modules.utils import MessageHistory
 from modules.custom_logger import CustomLogger
 
 logger = CustomLogger("gpt4_shell") # get ref to singleton logger
@@ -28,19 +29,18 @@ def wait_for_query_show_spinner(prompt, api_key):
     console.print("")  # blank line after spinner stops
     return response
 
+message_history = MessageHistory()  
 def query_gpt(text, api_key):
     # Query GPT-4 with the given text and api_key
     openai.api_key = api_key
 
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "system", "content": "When providing code, please enclose it in triple backticks with the appropriate language specified."},
-        {"role": "user", "content": text}
-    ]
+   # Add the user's message to the history
+    message_history.add_message("user", text)
 
+    # Actual query
     response = openai.ChatCompletion.create(
         model="gpt-4",
-        messages=messages,
+        messages=message_history.get_history(),
         max_tokens=6500,
         n=1,
         stop=None,
@@ -49,6 +49,8 @@ def query_gpt(text, api_key):
 
     if response.choices:
         message = response['choices'][0]['message']['content'].strip()
+        # Add AI's response to the history
+        message_history.add_message("assistant", message)
         return message
 
     return "I'm not sure how to respond to that."
