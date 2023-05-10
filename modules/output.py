@@ -11,7 +11,7 @@ def add_syntax_highlighting(match):
     # Adds syntax highlighting to matched code block
     language = match.group(1).lower()
     code = match.group(2)
-    syntax = Syntax(code, language, line_numbers=True)
+    syntax = Syntax(code, language, line_numbers=False)
     return syntax
 
 def print_highlighted_response(response):
