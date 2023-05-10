@@ -42,6 +42,6 @@ class CustomLogger(logging.Logger, metaclass=Singleton):
 
         log_func(message)
         if not skip_print:
-            self.console.print(message, style=style)
+            self.console.print(message, style=style)        
 
 logging.setLoggerClass(CustomLogger)

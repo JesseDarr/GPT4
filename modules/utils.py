@@ -4,20 +4,6 @@ class ExitException(Exception):
     # Raised when the user types 'exit' to exit the application
     pass
 
-class MessageHistory:
-    # Used to track message history to inject back into the queries
-    def __init__(self):
-        self.history = [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "system", "content": "When providing code, please enclose it in triple backticks with the appropriate language specified."},
-        ]
-
-    def add_message(self, role, content):
-        self.history.append({"role": role, "content": content})
-
-    def get_history(self):
-        return self.history
-    
 def clear_screen():
     # Clear the terminal screen.# 
     if is_windows():
