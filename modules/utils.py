@@ -5,7 +5,7 @@ class ExitException(Exception):
     pass
 
 def clear_screen():
-    # Clear the terminal screen.# 
+    # Clear the terminal screen
     if is_windows():
         clear_screen_windows()
     else:

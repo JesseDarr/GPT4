@@ -1,1 +1,0 @@
-Get-ChildItem -Path "./" -File -Recurse | ForEach-Object { Write-Host "`n`n`nFile: $($_.FullName)`n"; (Get-Content $_.FullName) -replace '///', 'xxx' }
