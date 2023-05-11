@@ -11,8 +11,9 @@ class MessageHistory:
         self.max_tokens = max_tokens
         self.current_tokens = 0
         self.history = [
-            {"role": "system", "content": "You are a helpful assistant. Be precise, concise, and somewhat informal. Avoid using non-ASCII characters, such as emojis, that may cause encoding issues."},
-            {"role": "system", "content": "When providing code, please enclose it in triple backticks with the appropriate language specified."},
+            {"role": "system", "content": "Avoid using non-ASCII characters, such as emojis, that may cause encoding issues."},
+            {"role": "system", "content": "When providing code, enclose it in triple backticks with the appropriate language specified."},
+            {"role": "system", "content": "This conversation uses a message history system to provide historical context up to 4000 tokens. This ensures a coherent multi-input conversation by maintaining context of previous interactions."}
         ]
         self.current_tokens += self.count_tokens(self.history)
 

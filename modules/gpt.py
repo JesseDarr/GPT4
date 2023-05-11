@@ -68,10 +68,10 @@ def create_chat_completion(api_key, available_tokens):
     return openai.ChatCompletion.create(
         model="gpt-4",
         messages=message_history.get_history(),
-        max_tokens=available_tokens,
+        max_tokens=4000,
         n=1,
         stop=None,
-        temperature=0.7,
+        temperature=0.5,
     )
 
 def process_chat_completion_response(response):
